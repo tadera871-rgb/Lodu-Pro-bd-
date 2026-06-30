@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ludo Pro BD - Premium Edition</title>
+    <style>
+        /* বক্স সাইজিং ঠিক করা */
+        * { box-sizing: border-box; }
+
+        :root {
+            --bg: #0b0e11;
+            --card-bg: #151a21;
+            --primary: #00d2ff;
+            --secondary: #3a7bd5;
+            --accent: #00ff88;
+            --danger: #ff416c;
+            --gold: #ffcc00;
+            --text: #ffffff;
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* অথেনটিকেশন পেজ */
+        #auth-page { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            background: radial-gradient(circle, #1b2735 0%, #090a0f 100%);
+            padding: 20px; 
+        }
+        .auth-box { 
+            background: rgba(21, 26, 33, 0.9); 
+            padding: 40px 30px; 
+            border-radius: 25px; 
+            width: 100%; 
+            max-width: 360px; 
+            text-align: center; 
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .auth-box h2 { 
+            margin-bottom: 30px; 
+            color: var(--primary); 
+            font-size: 32px; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .auth-box input { 
+            width: 100%; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border: none; 
+            border-radius: 12px; 
+            background: #1e252e;
+            color: #fff;
+            outline: none;
+            border-bottom: 2px solid transparent;
+            transition: 0.3s;
+        }
+        .auth-box input:focus { border-bottom-color: var(--primary); }
+        .btn-auth { 
+            width: 100%; 
+            padding: 15px; 
+            background: linear-gradient(to right, var(--primary), var(--secondary)); 
+            color: #fff; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 18px;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+        }
+
+        /* মেইন অ্যাপ */
+        #main-app { display: none; padding-bottom: 80px; }
+        
+        header { 
+            background: linear-gradient(to bottom, #151a21, #0b0e11);
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+        }
+        header h1 { margin: 0; color: var(--primary); font-size: 28px; text-shadow: 0 0 10px var(--primary); }
+
+        /* বটম ন্যাভিগেশন */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #151a21;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 1000;
+        }
+        .nav-item { color: #888; text-decoration: none; font-size: 12px; text-align: center; cursor: pointer; }
+        .nav-item.active-nav { color: var(--primary); font-weight: bold; }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+
+        .container { max-width: 500px; margin: 10px auto; padding: 0 15px; }
+        .page-section { display: none; animation: slideUp 0.4s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .active { display: block; }
+
+        /* নোটিশ বক্স */
+        .notice-container { 
+            background: rgba(255, 204, 0, 0.1); 
+            border: 1px solid var(--gold);
+            border-radius: 50px; 
+            margin: 15px 0;
+            display: flex; 
+            align-items: center; 
+            overflow: hidden; 
+            padding: 5px 15px;
+        }
+        .notice-label { 
+            background: var(--gold); 
+            color: #000; 
+            padding: 4px 12px; 
+            border-radius: 50px; 
+            font-size: 11px; 
+            font-weight: 900; 
+            text-transform: uppercase;
+            margin-right: 10px;
+        }
+        .notice-container marquee { font-size: 13px; color: var(--gold); font-weight: 500; }
+
+        /* ব্যালেন্স কার্ড */
+        .card-balance { 
+            background: linear-gradient(135deg, #1e252e 0%, #151a21 100%);
+            padding: 30px; 
+            border-radius: 20px; 
+            text-align: center; 
+            box-shadow: var(--shadow); 
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .balance-label { font-size: 14px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        .balance-val { font-size: 42px; color: var(--accent); font-weight: 800; text-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
+
+        /* ম্যাচ কার্ড */
+        .match-card { 
+            background: var(--card-bg);
+            border-radius: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: var(--shadow); 
+            padding: 20px; 
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.05);
+            overflow: hidden;
+        }
+        .match-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%; background: var(--primary);
+        }
+        .match-name-tag { font-size: 19px; color: var(--primary); font-weight: bold; margin-bottom: 12px; display: block; }
+        .match-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .match-info-item { background: #1e252e; padding: 10px; border-radius: 10px; text-align: center; }
+        .match-info-item span { display: block; font-size: 10px; color: #888; text-transform: uppercase; }
+        .match-info-item b { font-size: 15px; color: var(--gold); }
+
+        .btn-join { 
+            width: 100%; 
+            padding: 12px; 
+            background: var(--accent); 
+            color: #000; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: 900; 
+            margin-top: 15px; 
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .room-code-box { 
+            background: rgba(0, 210, 255, 0.1); 
+            padding: 12px; 
+            border: 1px dashed var(--primary); 
+            border-radius: 12px;
+            font-weight: bold; color: var(--primary); 
+            margin-top: 15px; text-align: center;
+        }
+
+        /* ওয়ালেট ট্যাব */
+        .wallet-tabs { display: flex; background: #1e252e; padding: 5px; border-radius: 15px; margin-bottom: 25px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; cursor: pointer; color: #888; background: transparent; font-weight: bold; }
+        .tab-btn.active-tab { background: var(--primary); color: #fff; }
+
+        /* মেথড কার্ড */
+        .method-card { border: 2px solid #eee; padding: 20px; border-radius: 15px; cursor: pointer; transition: 0.3s; text-align: center; }
+        .method-card.bkash { color: #d12053; border-color: #d12053; }
+        .method-card.nagad { color: #ff6a00; border-color: #ff6a00; }
+        
+        /* চাপ দিলে নীল হওয়ার স্টাইল */
+        .selected-method { 
+            background-color: var(--primary) !important; 
+            color: #fff !important; 
+            border-color: #fff !important; 
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* এডমিন ডিজাইন */
+        .admin-box { background: #151a21; padding: 20px; border-radius: 20px; border: 1px solid var(--danger); margin-bottom: 20px; }
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11px; }
+        .admin-table th, .admin-table td { padding: 10px; border-bottom: 1px solid #1e252e; text-align: left; }
+        .admin-table th { color: var(--primary); }
+
+        .btn-sm { padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 10px; font-weight: bold; }
+        .btn-paid { background: var(--accent); color: #000; }
+        .btn-del { background: var(--danger); color: #fff; }
+        .btn-ban { background: #ffa500; color: #000; } /* Ban button style */
+
+        .admin-box input, .form-box input {
+            width: 100%; 
+            padding: 12px;
+            margin: 8px 0;
+            background: #1e252e;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            outline: none;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div id="auth-page">
+    <div id="login-form" class="auth-box">
+        <h2>LOGIN</h2>
+        <input type="email" id="log-email" placeholder="ইমেইল (ID)">
+        <input type="password" id="log-pass" placeholder="পাসওয়ার্ড">
+        <button class="btn-auth" onclick="handleLogin()">লগইন করুন</button>
+        <p onclick="showReg()" style="cursor:pointer; color:#aaa; margin-top:25px; font-size:14px;">নতুন অ্যাকাউন্ট? <b style="color:var(--primary)">রেজিষ্ট্রেশন</b></p>
+    </div>
+    <div id="reg-form" class="auth-box" style="display: none;">
+        <h2>SIGN UP</h2>
+        <input type="text" id="reg-name" placeholder="পুরো নাম">
+        <input type="email" id="reg-email" placeholder="ইমেইল (ID)">
+        <input type="password" id="reg-pass" placeholder="পাসওয়ার্ড">
+        <button class="btn-auth" onclick="handleRegister()">অ্যাকাউন্ট খুলুন</button>
+        <p onclick="showLog()" style="cursor:pointer; color:#aaa; margin-top:25px; font-size:14px;">ইতিমধ্যে আছে? <b style="color:var(--primary)">লগইন</b></p>
+    </div>
+</div>
+
+<div id="main-app">
+    <header>
+        <h1>LUDO PRO BD</h1>
+        <p id="welcome-text" style="font-size:14px; margin-top:5px; color:#aaa;"></p>
+    </header>
+
+    <div class="container">
+        <!-- হোম -->
+        <div id="home" class="page-section active">
+            <div class="notice-container">
+                <span class="notice-label">NEWS</span>
+                <marquee id="app-notice-text" behavior="scroll" direction="left" scrollamount="6"></marquee>
+            </div>
+            <div class="card-balance">
+                <span class="balance-label">Total Balance</span>
+                <div class="balance-val">৳<span id="h-bal">0</span></div>
+            </div>
+            <div id="match-list"></div>
+        </div>
+
+        <!-- ওয়ালেট -->
+        <div id="wallet" class="page-section">
+            <div class="card-balance">
+                <span class="balance-label">Wallet Balance</span>
+                <div class="balance-val">৳<span id="w-bal">0</span></div>
+            </div>
+            <div class="wallet-tabs">
+                <button id="dep-tab" class="tab-btn active-tab" onclick="switchWalletTab('deposit')">ADD MONEY</button>
+                <button id="wit-tab" class="tab-btn" onclick="switchWalletTab('withdraw')">WITHDRAW</button>
+            </div>
+            <div id="deposit-area">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                    <div class="method-card bkash" onclick="openMethod('bKash', 'deposit')"><b>bKash</b></div>
+                    <div class="method-card nagad" onclick="openMethod('Nagad', 'deposit')"><b>Nagad</b></div>
+                </div>
+                <div id="deposit-form" class="form-box" style="display:none; margin-top:20px; background:#1e252e; padding:20px; border-radius:15px;">
+                    <h4 id="dep-title" style="color:var(--primary); margin:0 0 10px 0;"></h4>
+                    <p style="font-size:12px; color:#aaa;">আমাদের <b>01963314623</b> নম্বরে Send Money করে নিচের তথ্য দিন।</p>
+                    <input type="number" id="dep-amount" placeholder="টাকার পরিমাণ (৳)">
+                    <input type="text" id="dep-trxid" placeholder="TrxID (ট্রানজেকশন আইডি)">
+                    <button class="btn-auth" onclick="submitDeposit()">রিকোয়েস্ট পাঠান</button>
+                </div>
+            </div>
+            <div id="withdraw-area" style="display:none;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                    <div class="method-card bkash" onclick="openMethod('bKash', 'withdraw')"><b>bKash</b></div>
+                    <div class="method-card nagad" onclick="openMethod('Nagad', 'withdraw')"><b>Nagad</b></div>
+                </div>
+                <div id="withdraw-form" class="form-box" style="display:none; margin-top:20px; background:#1e252e; padding:20px; border-radius:15px;">
+                    <h4 id="wit-title" style="color:var(--primary); margin:0 0 10px 0;"></h4>
+                    <input type="number" id="wit-number" placeholder="বিকাশ/নগদ নম্বর">
+                    <input type="number" id="wit-amount" placeholder="পরিমাণ (মিনিমাম ১০০৳)">
+                    <button class="btn-auth" style="background:var(--danger);" onclick="submitWithdraw()">উইড্র রিকোয়েস্ট পাঠান</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- সাপোর্ট -->
+        <div id="support" class="page-section" style="text-align:center;">
+            <div class="card-balance">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124034.png" width="60" onclick="openAdminPanel()">
+                <h3>Need Help?</h3>
+                <a href="https://wa.me/8801963314623" target="_blank" style="display:inline-block; background:#25d366; color:white; text-decoration:none; padding:15px 30px; border-radius:15px; font-weight:bold; margin-top:10px;">WhatsApp Chat</a>
+            </div>
+        </div>
+
+        <!-- এডমিন প্যানেল -->
+        <div id="admin-panel" class="page-section">
+            <div class="admin-box">
+                <h2 style="color:var(--danger); text-align:center; margin-top:0;">ADMIN CONTROL</h2>
+                
+                <h4 style="color:var(--accent);">Registered Users</h4>
+                <div style="overflow-x:auto; max-height: 250px; margin-bottom: 20px; background: #0b0e11; border-radius: 10px;">
+                    <table class="admin-table">
+                        <thead><tr><th>Name</th><th>Email</th><th>Bal</th><th>Action</th></tr></thead>
+                        <tbody id="user-list-body"></tbody>
+                    </table>
+                </div>
+
+                <p>নোটিশ আপডেট করুন:</p>
+                <input type="text" id="admin-notice-input" placeholder="নতুন নোটিশ...">
+                <button class="btn-auth" style="background:#333; margin-bottom:20px;" onclick="adminUpdateNotice()">পাবলিশ নোটিশ</button>
+
+                <p>সরাসরি ব্যালেন্স এড:</p>
+                <input type="email" id="target-user-email" placeholder="ইউজার ইমেইল">
+                <input type="number" id="manual-balance-amount" placeholder="টাকার পরিমাণ">
+                <button class="btn-auth" style="background:var(--accent); color:#000;" onclick="adminManualAddBalance()">এড করুন</button>
+
+                <h4 style="color:var(--gold);">Depositive Requests</h4>
+                <div style="overflow-x:auto;">
+                    <table class="admin-table">
+                        <thead><tr><th>User</th><th>৳</th><th>TrxID</th><th>Action</th></tr></thead>
+                        <tbody id="deposit-request-body"></tbody>
+                    </table>
+                </div>
+
+                <h4 style="color:var(--danger); margin-top:20px;">Withdraw Requests</h4>
+                <div style="overflow-x:auto;">
+                    <table class="admin-table">
+                        <thead><tr><th>User</th><th>৳</th><th>Num</th><th>Action</th></tr></thead>
+                        <tbody id="withdraw-request-body"></tbody>
+                    </table>
+                </div>
+
+                <h4 style="color:var(--primary); margin-top:20px;">Match Control</h4>
+                <div style="overflow-x:auto;">
+                    <table class="admin-table">
+                        <thead><tr><th>Match</th><th>Room Code</th><th>Action</th></tr></thead>
+                        <tbody id="match-code-update-body"></tbody>
+                    </table>
+                </div>
+
+                <h4 style="margin-top:20px;">Add New Match</h4>
+                <input type="text" id="m-name" placeholder="Match Name">
+                <input type="number" id="m-fee" placeholder="Entry Fee">
+                <input type="number" id="m-prize" placeholder="Prize Pool">
+                <input type="text" id="m-code" placeholder="Initial Room Code">
+                <input type="text" id="m-limit-text" placeholder="প্লেয়ার সংখ্যা (উদা: ২ জন হলে চালু হবে)">
+                <button class="btn-auth" style="background:var(--secondary);" onclick="adminAddMatch()">PUBLISH MATCH</button>
+                <button onclick="showSection('home')" style="margin-top:20px; width:100%; border:none; background:#222; color:red; padding:10px; border-radius:10px; cursor:pointer;">ফিরে যান</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ন্যাভিগেশন -->
+    <div class="bottom-nav">
+        <div class="nav-item active-nav" onclick="showSection('home'); setNav(this)"><i>🏠</i>Home</div>
+        <div class="nav-item" onclick="showSection('wallet'); setNav(this)"><i>💰</i>Wallet</div>
+        <div class="nav-item" onclick="showSection('support'); setNav(this)"><i>🎧</i>Support</div>
+    </div>
+</div>
+
+<script>
+    let users = JSON.parse(localStorage.getItem('ludo_users')) || [];
+    let matches = JSON.parse(localStorage.getItem('ludo_matches')) || [];
+    let depRequests = JSON.parse(localStorage.getItem('ludo_dep_req')) || [];
+    let witRequests = JSON.parse(localStorage.getItem('ludo_wit_req')) || [];
+    let appNotice = localStorage.getItem('ludo_app_notice') || "স্বাগতম! লूडো প্রো বিডিতে আপনার গেমিং যাত্রা শুরু করুন।";
+    let currentUserEmail = null;
+    let selectedMethod = "";
+
+    function setNav(el) {
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active-nav'));
+        el.classList.add('active-nav');
+    }
+
+    function showReg() { document.getElementById('login-form').style.display='none'; document.getElementById('reg-form').style.display='block'; }
+    function showLog() { document.getElementById('login-form').style.display='block'; document.getElementById('reg-form').style.display='none'; }
+
+    function handleRegister() {
+        const name = document.getElementById('reg-name').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const pass = document.getElementById('reg-pass').value.trim();
+        if(name && email && pass) {
+            users = JSON.parse(localStorage.getItem('ludo_users')) || [];
+            if(users.find(u => u.email === email)) return alert("ID Already Exists!");
+            users.push({ name, email, pass, balance: 0, joined: [], isBanned: false });
+            localStorage.setItem('ludo_users', JSON.stringify(users));
+            alert("Success! Please Login."); showLog();
+        }
+    }
+
+    function handleLogin() {
+        const email = document.getElementById('log-email').value.trim();
+        const pass = document.getElementById('log-pass').value.trim();
+        users = JSON.parse(localStorage.getItem('ludo_users')) || [];
+        const user = users.find(u => u.email === email && u.pass === pass);
+        
+        if(user) {
+            if(user.isBanned) {
+                alert("আপনার আইডিটি ব্যান করা হয়েছে!");
+                return;
+            }
+            currentUserEmail = email;
+            document.getElementById('auth-page').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            document.getElementById('welcome-text').innerText = "PLAYER: " + user.name.toUpperCase();
+            updateUI(); showSection('home');
+        } else alert("Wrong ID or Password!");
+    }
+
+    function showSection(id) {
+        document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'home') document.getElementById('app-notice-text').innerText = appNotice;
+        if(id === 'admin-panel') renderAdminData();
+    }
+
+    function switchWalletTab(tab) {
+        document.getElementById('deposit-area').style.display = tab === 'deposit' ? 'block' : 'none';
+        document.getElementById('withdraw-area').style.display = tab === 'withdraw' ? 'block' : 'none';
+        document.getElementById('dep-tab').classList.toggle('active-tab', tab === 'deposit');
+        document.getElementById('wit-tab').classList.toggle('active-tab', tab === 'withdraw');
+        document.querySelectorAll('.method-card').forEach(card => card.classList.remove('selected-method'));
+    }
+
+    function openMethod(method, type) {
+        selectedMethod = method;
+        const container = type === 'deposit' ? 'deposit-area' : 'withdraw-area';
+        document.querySelectorAll(`#${container} .method-card`).forEach(card => {
+            card.classList.remove('selected-method');
+        });
+        event.currentTarget.classList.add('selected-method');
+
+        if(type === 'deposit') {
+            document.getElementById('deposit-form').style.display = 'block';
+            document.getElementById('dep-title').innerText = method + " DEPOSIT";
+        } else {
+            document.getElementById('withdraw-form').style.display = 'block';
+            document.getElementById('wit-title').innerText = method + " WITHDRAW";
+        }
+    }
+
+    function submitDeposit() {
+        const amt = document.getElementById('dep-amount').value;
+        const trx = document.getElementById('dep-trxid').value;
+        if(amt > 0 && trx) {
+            depRequests.push({ userEmail: currentUserEmail, amount: parseInt(amt), trxid: trx });
+            saveData(); alert("Request Sent!"); document.getElementById('deposit-form').style.display = 'none';
+        }
+    }
+
+    function submitWithdraw() {
+        const amt = parseInt(document.getElementById('wit-amount').value);
+        const num = document.getElementById('wit-number').value;
+        const user = users.find(u => u.email === currentUserEmail);
+        if(user.balance >= amt && amt >= 100) {
+            user.balance -= amt;
+            witRequests.push({ userEmail: currentUserEmail, amount: amt, number: num });
+            saveData(); alert("Withdraw Success!"); updateUI();
+            document.getElementById('withdraw-form').style.display = 'none';
+        } else alert("Insufficient Balance!");
+    }
+
+    function openAdminPanel() {
+        if(prompt("PASSWORD:") === "462357") showSection('admin-panel');
+    }
+
+    function renderAdminData() {
+        // ইউজার লিস্ট রেন্ডার করা (Updated with Ban & Delete buttons)
+        document.getElementById('user-list-body').innerHTML = users.map(u => `
+            <tr>
+                <td>${u.name}</td>
+                <td>${u.email}</td>
+                <td>৳${u.balance}</td>
+                <td>
+                    <button class="btn-sm btn-ban" onclick="adminToggleBan('${u.email}')">${u.isBanned ? 'Unban' : 'Ban'}</button>
+                    <button class="btn-sm btn-del" onclick="adminDeleteUser('${u.email}')">Del</button>
+                </td>
+            </tr>`).join('');
+
+        document.getElementById('deposit-request-body').innerHTML = depRequests.map((req, i) => `
+            <tr><td>${req.userEmail}</td><td>${req.amount}</td><td>${req.trxid}</td>
+            <td><button class="btn-sm btn-paid" onclick="approveDeposit(${i})">OK</button></td></tr>`).join('');
+        
+        document.getElementById('withdraw-request-body').innerHTML = witRequests.map((req, i) => `
+            <tr><td>${req.userEmail}</td><td>${req.amount}</td><td>${req.number}</td>
+            <td><button class="btn-sm btn-del" onclick="approveWithdraw(${i})">Paid</button></td></tr>`).join('');
+        
+        document.getElementById('match-code-update-body').innerHTML = matches.map((m, i) => `
+            <tr>
+                <td>${m.name}</td>
+                <td><input type="text" id="new-code-${m.id}" style="width:70px; padding:2px;" value="${m.code}"></td>
+                <td>
+                    <button class="btn-sm btn-paid" onclick="updateMatchCode(${m.id})">Fix</button>
+                    <button class="btn-sm btn-del" onclick="deleteMatch(${m.id})">Del</button>
+                </td>
+            </tr>`).join('');
+    }
+
+    // এডমিন: ইউজার ডিলিট
+    function adminDeleteUser(email) {
+        if(confirm("আপনি কি নিশ্চিতভাবে এই ইউজারকে ডিলিট করতে চান?")) {
+            users = users.filter(u => u.email !== email);
+            saveData();
+            renderAdminData();
+        }
+    }
+
+    // এডমিন: ইউজার ব্যান/আনব্যান
+    function adminToggleBan(email) {
+        const user = users.find(u => u.email === email);
+        if(user) {
+            user.isBanned = !user.isBanned;
+            saveData();
+            renderAdminData();
+            alert(user.isBanned ? "ইউজার ব্যান করা হয়েছে।" : "ইউজার আনব্যান করা হয়েছে।");
+        }
+    }
+
+    function updateMatchCode(matchId) {
+        const newCode = document.getElementById(`new-code-${matchId}`).value;
+        const match = matches.find(m => m.id === matchId);
+        if(match) { match.code = newCode; saveData(); alert("Updated!"); updateUI(); }
+    }
+
+    function deleteMatch(matchId) {
+        if(confirm("Delete?")) { matches = matches.filter(m => m.id !== matchId); saveData(); renderAdminData(); updateUI(); }
+    }
+
+    function approveDeposit(index) {
+        const req = depRequests[index];
+        const user = users.find(u => u.email === req.userEmail);
+        if(user) user.balance += req.amount;
+        depRequests.splice(index, 1);
+        saveData(); renderAdminData(); updateUI(); alert("Approved!");
+    }
+
+    function approveWithdraw(index) { witRequests.splice(index, 1); saveData(); renderAdminData(); }
+
+    function adminUpdateNotice() {
+        appNotice = document.getElementById('admin-notice-input').value;
+        localStorage.setItem('ludo_app_notice', appNotice);
+        alert("Notice Updated!");
+    }
+
+    function adminManualAddBalance() {
+        const emailInput = document.getElementById('target-user-email').value.trim();
+        const amountInput = document.getElementById('manual-balance-amount').value;
+        const amount = parseInt(amountInput);
+
+        if(!emailInput || isNaN(amount)) {
+            alert("সবগুলো তথ্য সঠিকভাবে দিন!");
+            return;
+        }
+
+        const user = users.find(u => u.email.toLowerCase() === emailInput.toLowerCase());
+        
+        if(user) {
+            user.balance += amount;
+            saveData();
+            updateUI();
+            renderAdminData();
+            alert("৳" + amount + " সফলভাবে এড করা হয়েছে ইউজার: " + user.name);
+            document.getElementById('target-user-email').value = "";
+            document.getElementById('manual-balance-amount').value = "";
+        } else {
+            alert("এই ইমেইল দিয়ে কোনো ইউজার পাওয়া যায়নি!");
+        }
+    }
+
+    function adminAddMatch() {
+        const name = document.getElementById('m-name').value;
+        const fee = document.getElementById('m-fee').value;
+        const prize = document.getElementById('m-prize').value;
+        const code = document.getElementById('m-code').value;
+        const limitText = document.getElementById('m-limit-text').value;
+        if(name && fee) {
+            matches.push({ id: Date.now(), name, fee: parseInt(fee), prize: parseInt(prize), code, limitText });
+            saveData(); alert("Match Added!"); updateUI();
+        }
+    }
+
+    function updateUI() {
+        const user = users.find(u => u.email === currentUserEmail);
+        document.getElementById('h-bal').innerText = user ? user.balance : 0;
+        document.getElementById('w-bal').innerText = user ? user.balance : 0;
+        const list = document.getElementById('match-list');
+        list.innerHTML = matches.map((m, i) => {
+            const hasJoined = user && user.joined.includes(m.id);
+            return `
+                <div class="match-card">
+                    <span class="match-name-tag">${m.name}</span>
+                    <div class="match-info-grid">
+                        <div class="match-info-item"><span>Entry Fee</span><b>৳${m.fee}</b></div>
+                        <div class="match-info-item"><span>Prize Pool</span><b>৳${m.prize}</b></div>
+                    </div>
+                    <p style="color:var(--danger); font-size:12px; font-weight:bold; margin-top:10px;">${m.limitText}</p>
+                    ${hasJoined ? `<div class="room-code-box">CODE: ${m.code}</div>` : `<button class="btn-join" onclick="joinMatch(${i})">JOIN NOW</button>`}
+                </div>`;
+        }).join('');
+    }
+
+    function joinMatch(index) {
+        const user = users.find(u => u.email === currentUserEmail);
+        const match = matches[index];
+        if(user.balance >= match.fee) {
+            user.balance -= match.fee;
+            user.joined.push(match.id);
+            saveData(); updateUI(); alert("Joined!");
+        } else alert("Low Balance!");
+    }
+
+    function saveData() {
+        localStorage.setItem('ludo_users', JSON.stringify(users));
+        localStorage.setItem('ludo_matches', JSON.stringify(matches));
+        localStorage.setItem('ludo_dep_req', JSON.stringify(depRequests));
+        localStorage.setItem('ludo_wit_req', JSON.stringify(witRequests));
+    }
+</script>
+</body>
+</html>
